@@ -1,28 +1,34 @@
 import numpy as np
 import tensorflow as tf
+from object_detection.core.post_processing import multiclass_non_max_suppression
+from tensorflow.core.protobuf.config_pb2 import ConfigProto
+from tensorflow.python.client.session import Session
 
-from nms.service.abstracts.nms_performer_base import NmsPerformerBase
-from nms.service.object_detection.core.post_processing import multiclass_non_max_suppression
+from .abstracts import NmsPerformerBase
+
+# from .object_detection.core.post_processing import multiclass_non_max_suppression
+
+SCORE_THRESH = 0.001
 
 
 class DetectionApiNmsPerformer(NmsPerformerBase):
     def __init__(self):
         self.sess = None
-        self.create_session()
+        self.config = ConfigProto()
+        self.config.gpu_options.allow_growth = True
 
     def create_session(self):
         """
         create tensorflow session
         """
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-        self.sess = tf.Session(config=config)
+
+        self.sess = Session(config=self.config)
 
     def nms_single_class(self, boxes, scores, input_metadata):
         """ see NmsPerformerBase """
         # define nms function params
         # This is not supposed to be in the request! we insert a default value for safety.
-        score_thresh = 0.001
+        score_thresh = SCORE_THRESH
         iou_thresh = input_metadata.get('nmsThresh', 0.6)
         max_output_size = boxes.shape[0]
 

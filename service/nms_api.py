@@ -1,5 +1,5 @@
-from nms.service.abstracts.nms_api_base import NmsApiBase
-from nms.service.utils import api_utils
+from .abstracts import NmsApiBase
+from .utils import api_utils
 
 
 class NmsApi(NmsApiBase):

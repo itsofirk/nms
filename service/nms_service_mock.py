@@ -12,11 +12,12 @@ from detection_utils import run_clahe
 from omek_api import OmekApi
 from omek_handler import OmekHandler
 
-from detection_api_nms_performer import DetectionApiNmsPerformer
-from nms.service.utils import api_utils
-from nms_api import NmsApi
-from nms_handler import NmsHandler
-from object_detection.utils.np_box_ops import bbox2coords
+from .detection_api_nms_performer import DetectionApiNmsPerformer
+from .utils import api_utils
+from .nms_api import NmsApi
+from .nms_handler import NmsHandler
+
+# from object_detection.utils.np_box_ops import bbox2coords
 
 if cv2.__version__[0] == '3':
     def polylines(im, polys, color):
@@ -26,7 +27,6 @@ elif cv2.__version__[0] == '2':
         im = im.copy()
         cv2.polylines(im, polys, True, color)
         return im
-
 
 IMAGE_PATHS = []
 ARGS = []
@@ -69,14 +69,12 @@ class Communicate:
                 im_base64 = base64.b64encode(im_encoded)
             original_resolution = 896 * 0.071 / im.shape[0]
             omek_request = {'image': im_base64, 'score_thresh': 0.2, 'top_k': 50, 'perform_clahe': False,
-                       'geo_resolution': original_resolution}
+                            'geo_resolution': original_resolution}
             print('running detection')
             omek_results = self.omek_handler.detect(omek_request)
 
             if omek_results['statusType'] != 'progressReport':
-                print('error in omek handler:')
-                print(omek_results)
-                print('\n\n\n')
+                print(f'error in omek handler: \n {omek_results}', end="\n" * 3)
                 continue
 
             ################
@@ -86,7 +84,7 @@ class Communicate:
             boxes, scores, classes = api_utils.parse_detections_json(omek_results['detections'])
             # if len(np.unique(classes)) == 1:
             if self.omek_handler.omek_detector.num_classes == 1:
-                classes[boxes[:, 2] > im.shape[1]/2] = 'a'
+                classes[boxes[:, 2] > im.shape[1] / 2] = 'a'
 
             nms_request = {'detections': api_utils.prepare_detections_json(boxes, scores, classes), 'iou_thresh': 0.1}
             nms_results = handle(nms_request)
@@ -116,18 +114,18 @@ class Communicate:
                 for i_cls, class_name in enumerate(unique_classes):
                     color = colors[i_cls]
                     curr_boxes = boxes[classes == class_name, :]
-                    coords = map(bbox2coords, curr_boxes[:100])
+                    coords = map(api_utils.bbox2coords, curr_boxes[:100])
                     polys = map(lambda p: p.astype(np.int32).reshape((-1, 1, 2)), coords)
                     im_marked = polylines(im_marked, polys, color)
 
                     color = nms_colors[i_cls]
                     curr_boxes = nms_boxes[nms_classes == class_name, :]
-                    coords = map(bbox2coords, curr_boxes[:100])
+                    coords = map(api_utils.bbox2coords, curr_boxes[:100])
                     polys = map(lambda p: p.astype(np.int32).reshape((-1, 1, 2)), coords)
                     im_marked = polylines(im_marked, polys, color)
                 misc.imsave(vis_path, im_marked)
 
-        print
+        print()
 
 
 def parse_args():
@@ -156,6 +154,7 @@ def main():
     ARGS.append(args)
 
     nms_performer = DetectionApiNmsPerformer()
+    nms_performer.create_session()
     nms_api = NmsApi()
     nms_handler = NmsHandler(nms_performer, nms_api)
     handle = nms_handler.nms

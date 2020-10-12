@@ -1,9 +1,22 @@
 import numpy as np
 import pandas as pd
-from StringIO import StringIO
+from io import StringIO
 import traceback
 
-from nms.service.object_detection.utils.np_box_ops import bbox2coords, coords2bbox
+
+def bbox2coords(bbox):
+    """
+    expands [left,top,right,bottom] to a 5-point polygon in [x_col,y_col] format (counter clockwise)
+    """
+    left, top, right, bottom = np.squeeze(bbox)
+    y = [top, bottom, bottom, top, top]
+    x = [left, left, right, right, left]
+    return np.vstack((x, y)).T
+
+
+def coords2bbox(coords):
+    """ calculates [left,top,right,bottom] from [x_col,y_col] """
+    return np.hstack((coords.min(axis=0), coords.max(axis=0)))
 
 
 def prepare_detections_json(boxes, scores, classes):

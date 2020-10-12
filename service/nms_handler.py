@@ -1,5 +1,6 @@
 import sys
 
+
 class NmsHandler:
 
     def __init__(self, nms_performer, nms_api):
@@ -16,7 +17,7 @@ class NmsHandler:
             results = self.nms_api.prepare_results(boxes, scores, classes)
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print("EXCEPTION: {}".format(e))
+            print(f"EXCEPTION: {e}")
             ex_type, ex_message, stack_trace = self.nms_api.prepare_error_results(exc_type, exc_value, exc_traceback)
             results = {'error': 'ERROR! See Stack Trace', 'statusType': 'algorithmError',
                        'type': ex_type, 'message': ex_message, 'stack_trace': stack_trace}
