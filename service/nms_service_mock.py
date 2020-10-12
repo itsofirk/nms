@@ -34,7 +34,7 @@ ARGS = []
 
 class Communicate:
     def __init__(self):
-        print 'initializing communicate object'
+        print('initializing communicate object')
         class_name = ARGS[0].class_name
         if class_name is None:
             self.class_name = os.environ['OMEK_CLASS']
@@ -56,8 +56,8 @@ class Communicate:
 
     def loop(self, handle):
         for image_path in IMAGE_PATHS:
-            print
-            print image_path
+            print()
+            print(image_path)
 
             ################
             #  omek        #
@@ -70,19 +70,19 @@ class Communicate:
             original_resolution = 896 * 0.071 / im.shape[0]
             omek_request = {'image': im_base64, 'score_thresh': 0.2, 'top_k': 50, 'perform_clahe': False,
                        'geo_resolution': original_resolution}
-            print 'running detection'
+            print('running detection')
             omek_results = self.omek_handler.detect(omek_request)
 
             if omek_results['statusType'] != 'progressReport':
-                print 'error in omek handler:'
-                print omek_results
-                print '\n\n\n'
+                print('error in omek handler:')
+                print(omek_results)
+                print('\n\n\n')
                 continue
 
             ################
             #  nms         #
             ################
-            print 'performing nms'
+            print('performing nms')
             boxes, scores, classes = api_utils.parse_detections_json(omek_results['detections'])
             # if len(np.unique(classes)) == 1:
             if self.omek_handler.omek_detector.num_classes == 1:
@@ -92,9 +92,9 @@ class Communicate:
             nms_results = handle(nms_request)
 
             if omek_results['statusType'] != 'progressReport':
-                print 'error in nms handler:'
-                print nms_results
-                print '\n\n\n'
+                print('error in nms handler:')
+                print(nms_results)
+                print('\n\n\n')
                 continue
 
             nms_boxes, nms_scores, nms_classes = api_utils.parse_detections_json(nms_results['detections'])
