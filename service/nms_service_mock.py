@@ -4,29 +4,23 @@ import os
 import os.path as osp
 
 import cv2
-import model_manager
+from omek_tile_detector.service import model_manager
 import numpy as np
 import scipy.misc as misc
-from detection_api_detector import DetectionApiDetector
-from detection_utils import run_clahe
-from omek_api import OmekApi
-from omek_handler import OmekHandler
+from omek_tile_detector.service.detection_api_detector import DetectionApiDetector
+from omek_tile_detector.service.utils.detection_utils import run_clahe
+from omek_tile_detector.service.omek_api import OmekApi
+from omek_tile_detector.service.omek_handler import OmekHandler
 
 from .detection_api_nms_performer import DetectionApiNmsPerformer
 from .utils import api_utils
 from .nms_api import NmsApi
 from .nms_handler import NmsHandler
 
-# from object_detection.utils.np_box_ops import bbox2coords
 
-if cv2.__version__[0] == '3':
-    def polylines(im, polys, color):
-        return cv2.polylines(im, polys, True, color)
-elif cv2.__version__[0] == '2':
-    def polylines(im, polys, color):
-        im = im.copy()
-        cv2.polylines(im, polys, True, color)
-        return im
+def polylines(im, polys, color):
+    return cv2.polylines(im, polys, True, color)
+
 
 IMAGE_PATHS = []
 ARGS = []
@@ -148,7 +142,7 @@ def parse_args():
     return args
 
 
-def main():
+def mock():
     args = parse_args()
     IMAGE_PATHS.extend(args.image_paths)
     ARGS.append(args)
@@ -161,7 +155,3 @@ def main():
 
     comm = Communicate()
     comm.loop(handle)
-
-
-if __name__ == '__main__':
-    main()

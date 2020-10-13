@@ -8,7 +8,3 @@ def main():
     nms_performer.create_session()
     nms_api = NmsApi()
     nms_handler = NmsHandler(nms_performer, nms_api)
-
-
-if __name__ == '__main__':
-    main()
