@@ -3,3 +3,4 @@ tensorflow
 numpy
 scipy
 pandas
+tensorflow_object_detection_api
