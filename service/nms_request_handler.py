@@ -1,5 +1,4 @@
-import sys
-from .utils import api_utils
+from utils import api_utils
 
 
 class NmsRequestHandler:
@@ -16,9 +15,8 @@ class NmsRequestHandler:
             boxes, scores, classes = self.nms_performer.suppress(boxes, scores, classes, input_metadata)
             results = api_utils.prepare_results(boxes, scores, classes)
         except Exception as e:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            print(f"EXCEPTION: {e}")
-            ex_type, ex_message, stack_trace = api_utils.prepare_error_results(exc_type, exc_value, exc_traceback)
+            exc_type, exc_value, stacktrace = api_utils.prepare_algorithm_error(e)
             results = {'error': 'ERROR! See Stack Trace', 'statusType': 'algorithmError',
-                       'type': ex_type, 'message': ex_message, 'stack_trace': stack_trace}
+                       'type': exc_type, 'message': exc_value, 'stack_trace': stacktrace}
+            print(f"EXCEPTION: {results}")
         return results

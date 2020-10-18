@@ -8,7 +8,7 @@ from tensorflow.python.client.session import Session
 SCORE_THRESH = 0.001
 
 
-class DetectionApiNmsPerformer(NmsPerformerBase):
+class DetectionApiNmsPerformer:
     def __init__(self):
         self.sess = None
         self.config = ConfigProto()

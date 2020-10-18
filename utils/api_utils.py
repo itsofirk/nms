@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import pandas as pd
 from io import StringIO
@@ -75,20 +77,22 @@ def prepare_detections_csv(boxes, scores, classes):
     return df.to_csv(index=False)
 
 
-def prepare_algorithm_error(exc_type, exc_value, exc_traceback):
+def prepare_algorithm_error(exception):
     """
+    , exc_type, exc_value, exc_traceback
     prepare json-style results dict representing an algorithm error, as defined in the swagger
+    :param exception
+    :_param exc_type, exc_value, exc_traceback: the results of calling sys.exc_info() after catching the exception
+    :return: results - a json-like object (composed of dicts and lists) representing the error.
     """
-    ex_type = exc_type.__name__
-    if len(exc_value.args) > 0:
-        ex_message = exc_value.args[0]
-    else:
-        ex_message = ''
-    f = StringIO()
-    traceback.print_exception(exc_type, exc_value, exc_traceback, file=f)
-    f.seek(0)
-    stack_trace = f.read()
-    return ex_type, ex_message, stack_trace
+    if not exception:
+        return (None,) * 3
+    exc_type = type(exception).__name__
+    exc_value = ''
+    if len(exception.args) > 0:
+        exc_value = exception.args[0]
+    stacktrace = traceback.format_exception(exc_type, exc_value, exception.__traceback__)
+    return exc_type, exc_value, stacktrace
 
 
 # NmsAPI
@@ -120,12 +124,3 @@ def prepare_results(boxes, scores, classes):
     result = {'detections': prepare_detections_json(boxes, scores, classes),
               'statusType': 'stripDetections'}
     return result
-
-
-def prepare_error_results(exc_type, exc_value, exc_traceback):
-    """
-    prepare results dict in case an exception was raised
-    :param exc_type, exc_value, exc_traceback: the results of calling sys.exc_info() after catching the exception
-    :return: results - a json-like object (composed of dicts and lists) representing the error.
-    """
-    return prepare_algorithm_error(exc_type, exc_value, exc_traceback)

@@ -12,9 +12,8 @@ from omek_tile_detector.service.utils.detection_utils import run_clahe
 from omek_tile_detector.service.omek_api import OmekApi
 from omek_tile_detector.service.omek_handler import OmekHandler
 
-from .detection_api_nms_performer import DetectionApiNmsPerformer
-from .utils import api_utils
-from .nms_api import NmsApi
+from logic.detection_api_nms_performer import DetectionApiNmsPerformer
+from utils import api_utils
 from .nms_request_handler import NmsRequestHandler
 
 
@@ -33,7 +32,6 @@ class Communicate:
         self.class_name = class_name if class_name else os.environ['OMEK_CLASS']
         self.omek_handler = None
         self.init_omek_handler()
-        self.nms_api = NmsApi()
 
     def init_omek_handler(self):
         base64_model = model_manager.get_latest_model(self.class_name)
