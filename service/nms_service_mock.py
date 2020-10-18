@@ -15,7 +15,7 @@ from omek_tile_detector.service.omek_handler import OmekHandler
 from .detection_api_nms_performer import DetectionApiNmsPerformer
 from .utils import api_utils
 from .nms_api import NmsApi
-from .nms_handler import NmsHandler
+from .nms_request_handler import NmsRequestHandler
 
 
 def polylines(im, polys, color):
@@ -146,8 +146,7 @@ def mock():
 
     nms_performer = DetectionApiNmsPerformer()
     nms_performer.create_session()
-    nms_api = NmsApi()
-    nms_handler = NmsHandler(nms_performer, nms_api)
+    nms_handler = NmsRequestHandler(nms_performer)
     handle = nms_handler  # .nms
 
     comm = Communicate()
