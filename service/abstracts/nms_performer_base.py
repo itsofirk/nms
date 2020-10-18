@@ -28,11 +28,11 @@ class NmsPerformerBase:
         :return: a filtered version of boxes, scores, classes
         """
         unique_classes = np.unique(classes)
-        nms_boxes_list = [None] * len(unique_classes)
-        nms_scores_list = [None] * len(unique_classes)
-        nms_classes_list = [None] * len(unique_classes)
+        nms_boxes_list = np.full(len(unique_classes), None)
+        nms_scores_list = np.full(len(unique_classes), None)
+        nms_classes_list = np.full(len(unique_classes), None)
 
-        for i_class, class_name in enumerate(unique_classes):
+        for idx, class_name in enumerate(unique_classes):
             relevant_inds = classes == class_name
             curr_boxes = boxes[relevant_inds]
             curr_scores = scores[relevant_inds]
@@ -40,9 +40,9 @@ class NmsPerformerBase:
             curr_nms_boxes, curr_nms_scores = self.nms_single_class(curr_boxes, curr_scores, input_metadata)
             curr_nms_classes = np.array([class_name] * len(curr_nms_scores))
 
-            nms_boxes_list[i_class] = curr_nms_boxes
-            nms_scores_list[i_class] = curr_nms_scores
-            nms_classes_list[i_class] = curr_nms_classes
+            nms_boxes_list[idx] = curr_nms_boxes
+            nms_scores_list[idx] = curr_nms_scores
+            nms_classes_list[idx] = curr_nms_classes
 
         if len(nms_boxes_list) > 0:
             nms_boxes = np.vstack(nms_boxes_list)

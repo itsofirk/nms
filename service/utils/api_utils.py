@@ -44,10 +44,19 @@ def parse_detections_json(detections):
     """
     parse detections from the json-style format define in the swagger file into boxes, scores, classes
     """
-    coords = map(lambda x: np.array(x['pixelLocation']['coordinates'][0]), detections)
-    boxes = np.array(map(coords2bbox, coords))
-    scores = np.array(map(lambda x: x['grade'], detections)).astype('float32')
-    classes = np.array(map(lambda x: x['classification'], detections))
+    coords = []
+    scores = []
+    classes = []
+
+    for dtc in detections:
+        coords.append(dtc['pixelLocation']['coordinates'][0])
+        scores.append(dtc['grade'])
+        classes.append(dtc['classification'])
+    coords = np.array(coords)
+    scores = np.array(scores).astype("float32")
+    classes = np.array(classes)
+
+    boxes = np.array([coords2bbox(x) for x in coords])
     return boxes, scores, classes
 
 
@@ -63,11 +72,7 @@ def prepare_detections_csv(boxes, scores, classes):
         'score': scores,
         'class': classes
     })
-    f = StringIO()
-    df.to_csv(f, index=False)
-    f.seek(0)
-    csv_dets = f.read()
-    return csv_dets
+    return df.to_csv(index=False)
 
 
 def prepare_algorithm_error(exc_type, exc_value, exc_traceback):

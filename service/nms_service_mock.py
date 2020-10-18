@@ -30,10 +30,7 @@ class Communicate:
     def __init__(self):
         print('initializing communicate object')
         class_name = ARGS[0].class_name
-        if class_name is None:
-            self.class_name = os.environ['OMEK_CLASS']
-        else:
-            self.class_name = class_name
+        self.class_name = class_name if class_name else os.environ['OMEK_CLASS']
         self.omek_handler = None
         self.init_omek_handler()
         self.nms_api = NmsApi()
@@ -151,7 +148,7 @@ def mock():
     nms_performer.create_session()
     nms_api = NmsApi()
     nms_handler = NmsHandler(nms_performer, nms_api)
-    handle = nms_handler.nms
+    handle = nms_handler  # .nms
 
     comm = Communicate()
     comm.loop(handle)
