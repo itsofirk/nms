@@ -77,7 +77,7 @@ def prepare_detections_csv(boxes, scores, classes):
     return df.to_csv(index=False)
 
 
-def prepare_algorithm_error(exception):
+def parse_exception(exception):
     """
     , exc_type, exc_value, exc_traceback
     prepare json-style results dict representing an algorithm error, as defined in the swagger
@@ -86,13 +86,12 @@ def prepare_algorithm_error(exception):
     :return: results - a json-like object (composed of dicts and lists) representing the error.
     """
     if not exception:
-        return (None,) * 3
-    exc_type = type(exception).__name__
+        return
     exc_value = ''
     if len(exception.args) > 0:
         exc_value = exception.args[0]
-    stacktrace = traceback.format_exception(exc_type, exc_value, exception.__traceback__)
-    return exc_type, exc_value, stacktrace
+    stacktrace = traceback.format_exception(type(exception), exception, exception.__traceback__)
+    return type(exception).__name__, exc_value, stacktrace
 
 
 # NmsAPI

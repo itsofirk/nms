@@ -4,7 +4,6 @@ from object_detection.core.post_processing import multiclass_non_max_suppression
 from tensorflow.core.protobuf.config_pb2 import ConfigProto
 from tensorflow.python.client.session import Session
 
-
 SCORE_THRESH = 0.001
 
 
@@ -22,6 +21,7 @@ class DetectionApiNmsPerformer:
 
     def nms_single_class(self, boxes, scores, input_metadata):
         """
+        Single-class NMS implementation using Tensorflow framework
         perform non-maximum suppression on the given detections - discard detections that
         are already covered (high IoU) by another detection with higher score.
         :param boxes:
@@ -47,15 +47,17 @@ class DetectionApiNmsPerformer:
         nms_node = multiclass_non_max_suppression(
             boxes, scores, score_thresh, iou_thresh, max_output_size)
 
+        boxlist, tensor = nms_node
         # run nms evaluation
-        self.sess.run(nms_node.get())
-        nms_boxes = nms_node.data['boxes'].eval(session=self.sess)
-        nms_scores = nms_node.data['scores'].eval(session=self.sess)
+        self.sess.run(tensor)
+        nms_boxes = boxlist.data['boxes'].eval(session=self.sess)
+        nms_scores = boxlist.data['scores'].eval(session=self.sess)
 
         return nms_boxes, nms_scores
 
     def suppress(self, boxes, scores, classes, input_metadata):
         """
+        Multi-class NMS implementation
         perform non-maximum suppression on the given detections - discard detections that
         are already covered (high IoU) by another detection with higher score.
         the process is performed for every class separately, then the results are concatenated.
@@ -72,7 +74,7 @@ class DetectionApiNmsPerformer:
         nms_classes_list = np.full(len(unique_classes), None)
 
         for idx, class_name in enumerate(unique_classes):
-            relevant_inds = classes == class_name
+            relevant_inds = classes == class_name  # numpy syntax
             curr_boxes = boxes[relevant_inds]
             curr_scores = scores[relevant_inds]
 
