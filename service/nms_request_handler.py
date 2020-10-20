@@ -1,4 +1,18 @@
 from utils import api_utils
+from logic.cpu_nms import non_maximum_supression as nms
+
+
+def new_handle_request(request):
+    boxes, scores, classes, input_metadata = api_utils.parse_request(request)
+    try:
+        boxes, scores = nms(boxes, scores, None, input_metadata)
+        results = api_utils.prepare_results(boxes, scores, classes)
+    except Exception as e:
+        exc_type, exc_value, stacktrace = api_utils.parse_exception(e)
+        results = {'error': 'ERROR! See Stack Trace', 'statusType': 'algorithmError',
+                   'type': exc_type, 'message': exc_value, 'stack_trace': stacktrace}
+        print(f"EXCEPTION: {results}")
+    return results
 
 
 class NmsRequestHandler:
