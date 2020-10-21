@@ -59,6 +59,7 @@ def unpack_detections(detections):
     classes = np.array(classes)
 
     boxes = np.array([coords2bbox(x) for x in coords])
+    check_correspondence(boxes, scores, classes)
     return boxes, scores, classes
 
 
@@ -123,3 +124,9 @@ def prepare_results(boxes, scores, classes):
     result = {'detections': pack_detections(boxes, scores, classes),
               'statusType': 'stripDetections'}
     return result
+
+
+def check_correspondence(boxes, scores, classes):
+    if not len(boxes) == len(scores) == len(classes):
+        raise ValueError("One or more of these lists {boxes, scores, classes} are not equal in size")
+    return True

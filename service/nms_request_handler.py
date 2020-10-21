@@ -21,7 +21,7 @@ class NmsRequestHandler:
         self.nms_performer = nms_performer
 
     def __call__(self, request):
-        return self.handle_request(request)
+        return new_handle_request(request)
 
     def handle_request(self, request):
         boxes, scores, classes, input_metadata = api_utils.parse_request(request)

@@ -1,6 +1,8 @@
 import numpy as np
 from utils.rectangle import Rectangle
 
+from utils import api_utils
+
 
 def non_maximum_suppression(boxes: np.ndarray, scores: np.ndarray, input_metadata, iou_thresh=1.0, score_thresh=0.001):
     iou_thresh = input_metadata.get('nmsThresh', 0.6)
@@ -25,10 +27,9 @@ def non_maximum_suppression(boxes: np.ndarray, scores: np.ndarray, input_metadat
     return D, scores
 
 
-def multiclass_non_maximum_supression(self, boxes, scores, classes, input_metadata):
+def multiclass_non_maximum_suppression(boxes, scores, classes, input_metadata):
     """
-    Multi-class NMS implementation
-    perform non-maximum suppression on the given detections - discard detections that
+    perform multiclass non-maximum suppression on the given detections - discard detections that
     are already covered (high IoU) by another detection with higher score.
     the process is performed for every class separately, then the results are concatenated.
 
@@ -38,30 +39,32 @@ def multiclass_non_maximum_supression(self, boxes, scores, classes, input_metada
     :param input_metadata: a dictionary of additional input params. can be empty.
     :return: a filtered version of boxes, scores, classes
     """
+    api_utils.check_correspondence(boxes, scores, classes)
+    if len(scores) == 0:
+        return boxes, scores, classes
+    # Find the set of `classes` for this input
     unique_classes = np.unique(classes)
-    nms_boxes_list = np.full(len(unique_classes), None)
-    nms_scores_list = np.full(len(unique_classes), None)
-    nms_classes_list = np.full(len(unique_classes), None)
 
-    for idx, class_name in enumerate(unique_classes):
-        relevant_inds = classes == class_name  # numpy syntax
-        curr_boxes = boxes[relevant_inds]
-        curr_scores = scores[relevant_inds]
+    # Create lists for each class output
+    nms_boxes_list = np.empty((0, 4))
+    nms_scores_list = np.empty((0,))
+    nms_classes_list = np.empty((0,))
 
-        curr_nms_boxes, curr_nms_scores = self.nms_single_class(curr_boxes, curr_scores, input_metadata)
-        curr_nms_classes = np.array([class_name] * len(curr_nms_scores))
+    for i, class_name in enumerate(unique_classes):
+        # Find the input for each class
+        class_indices = classes == class_name  # numpy syntax
+        _boxes = boxes[class_indices]
+        _scores = scores[class_indices]
 
-        nms_boxes_list[idx] = curr_nms_boxes
-        nms_scores_list[idx] = curr_nms_scores
-        nms_classes_list[idx] = curr_nms_classes
+        _boxes, _scores = non_maximum_suppression(_boxes, _scores, input_metadata)
+        _classes = [class_name] * len(_scores)
 
-    if len(nms_boxes_list) > 0:
-        nms_boxes = np.vstack(nms_boxes_list)
-        nms_scores = np.hstack(nms_scores_list)
-        nms_classes = np.hstack(nms_classes_list)
-    else:
-        nms_boxes = np.array(nms_boxes_list)
-        nms_scores = np.array(nms_scores_list)
-        nms_classes = np.array(nms_classes_list)
+        api_utils.check_correspondence(_boxes, _scores, _classes)
 
-    return nms_boxes, nms_scores, nms_classes
+        nms_boxes_list = np.vstack((nms_boxes_list, _boxes))
+        nms_scores_list = np.hstack((nms_scores_list, _scores))
+        nms_classes_list = np.hstack((nms_classes_list, _classes))
+    # end-loop
+
+    api_utils.check_correspondence(nms_boxes_list, nms_scores_list, nms_classes_list)
+    return nms_boxes_list, nms_scores_list, nms_classes_list
