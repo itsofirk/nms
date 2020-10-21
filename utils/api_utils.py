@@ -21,7 +21,7 @@ def coords2bbox(coords):
     return np.hstack((coords.min(axis=0), coords.max(axis=0)))
 
 
-def prepare_detections_json(boxes, scores, classes):
+def pack_detections(boxes, scores, classes):
     """
     structure detections into json-style format as defined in the swagger file
     """
@@ -42,7 +42,7 @@ def prepare_detections_json(boxes, scores, classes):
     return detections
 
 
-def parse_detections_json(detections):
+def unpack_detections(detections):
     """
     parse detections from the json-style format define in the swagger file into boxes, scores, classes
     """
@@ -107,7 +107,7 @@ def parse_request(request):
              input_metadata - a dictionary of additional input params. can be empty.
     """
     detections = request.pop('detections')
-    boxes, scores, classes = parse_detections_json(detections)
+    boxes, scores, classes = unpack_detections(detections)
     input_metadata = request
     return boxes, scores, classes, input_metadata
 
@@ -120,6 +120,6 @@ def prepare_results(boxes, scores, classes):
     :param classes: [N] np.array of string class names
     :return: results - a json-like object (composed of dicts and lists) of detection results.
     """
-    result = {'detections': prepare_detections_json(boxes, scores, classes),
+    result = {'detections': pack_detections(boxes, scores, classes),
               'statusType': 'stripDetections'}
     return result

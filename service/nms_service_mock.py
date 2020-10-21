@@ -70,12 +70,12 @@ class Communicate:
             #  nms         #
             ################
             print('performing nms')
-            boxes, scores, classes = api_utils.parse_detections_json(omek_results['detections'])
+            boxes, scores, classes = api_utils.unpack_detections(omek_results['detections'])
             # if len(np.unique(classes)) == 1:
             if self.omek_handler.omek_detector.num_classes == 1:
                 classes[boxes[:, 2] > im.shape[1] / 2] = 'a'
 
-            nms_request = {'detections': api_utils.prepare_detections_json(boxes, scores, classes), 'iou_thresh': 0.1}
+            nms_request = {'detections': api_utils.pack_detections(boxes, scores, classes), 'iou_thresh': 0.1}
             nms_results = handle(nms_request)
 
             if omek_results['statusType'] != 'progressReport':
@@ -84,7 +84,7 @@ class Communicate:
                 print('\n\n\n')
                 continue
 
-            nms_boxes, nms_scores, nms_classes = api_utils.parse_detections_json(nms_results['detections'])
+            nms_boxes, nms_scores, nms_classes = api_utils.unpack_detections(nms_results['detections'])
 
             ################
             #  vis         #
