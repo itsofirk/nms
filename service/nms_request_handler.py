@@ -1,11 +1,11 @@
 from utils import api_utils
-from logic.cpu_nms import non_maximum_supression as nms
+from logic.cpu_nms import multiclass_non_maximum_suppression as multiclass_nms
 
 
 def new_handle_request(request):
     boxes, scores, classes, input_metadata = api_utils.parse_request(request)
     try:
-        boxes, scores = nms(boxes, scores, None, input_metadata)
+        boxes, scores, classes = multiclass_nms(boxes, scores, classes, input_metadata)
         results = api_utils.prepare_results(boxes, scores, classes)
     except Exception as e:
         exc_type, exc_value, stacktrace = api_utils.parse_exception(e)
