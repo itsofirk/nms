@@ -18,24 +18,3 @@ def handle_request(request):
         }
         print(f"EXCEPTION: {results}")
     return results
-
-
-class NmsRequestHandler:
-
-    def __init__(self, nms_performer):
-        self.nms_performer = nms_performer
-
-    def __call__(self, request):
-        return handle_request(request)
-
-    def handle_request(self, request):
-        boxes, scores, classes = api_utils.unpack_detections(request['detections'])
-        try:
-            boxes, scores, classes = self.nms_performer.suppress(boxes, scores, classes, request)
-            results = api_utils.prepare_results(boxes, scores, classes)
-        except Exception as e:
-            exc_type, exc_value, stacktrace = api_utils.parse_exception(e)
-            results = {'error': 'ERROR! See Stack Trace', 'statusType': 'algorithmError',
-                       'type': exc_type, 'message': exc_value, 'stack_trace': stacktrace}
-            print(f"EXCEPTION: {results}")
-        return results

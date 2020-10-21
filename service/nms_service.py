@@ -1,5 +1,16 @@
-from logic.detection_api_nms_performer import DetectionApiNmsPerformer
-from .nms_request_handler import NmsRequestHandler
+from .nms_request_handler import handle_request
+
+
+def main():
+    # TODO: add queue manager implementation
+    # wait for messages:
+    # then handle_request(message)
+    raise NotImplemented()
+
+
+def test():
+    assert RESULT_EXAMPLE == handle_request(REQUEST_EXAMPLE)
+
 
 REQUEST_EXAMPLE = {
     "detections": [
@@ -198,18 +209,3 @@ RESULT_EXAMPLE = {
     ],
     'statusType': 'stripDetections'
 }
-
-
-def main():
-    # TODO: add queue manager implementation
-    nms_performer = DetectionApiNmsPerformer()
-    nms_performer.create_session()
-    nms_handler = NmsRequestHandler(nms_performer)
-    nms_handler(REQUEST_EXAMPLE)
-
-
-def test():
-    nms_performer = DetectionApiNmsPerformer()
-    nms_performer.create_session()
-    nms_handler = NmsRequestHandler(nms_performer)
-    assert RESULT_EXAMPLE == nms_handler(REQUEST_EXAMPLE)
