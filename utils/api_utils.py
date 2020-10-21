@@ -1,9 +1,7 @@
-import sys
+import traceback
 
 import numpy as np
 import pandas as pd
-from io import StringIO
-import traceback
 
 
 def bbox2coords(bbox):
@@ -26,7 +24,7 @@ def pack_detections(boxes, scores, classes):
     structure detections into json-style format as defined in the swagger file
     """
     detections = []
-    for box, score, cls in zip(boxes, scores, classes):
+    for box, score, class_name in zip(boxes, scores, classes):
         coords = bbox2coords(box)
         outer_ring = coords.tolist()
         pixel_polygon = {
@@ -34,7 +32,7 @@ def pack_detections(boxes, scores, classes):
             'coordinates': [outer_ring]
         }
         detection = {
-            'classification': cls,
+            'classification': class_name,
             'grade': float(score),
             'pixelLocation': pixel_polygon
         }
@@ -97,22 +95,6 @@ def parse_exception(exception):
 
 # NmsAPI
 
-
-def parse_request(request):
-    """
-    parse request dictionary. return parsed detections and additional metadata.
-    :param request: request dictionary
-    :return: boxes - [Nx4] np.array of boxes: x_min, y_min, x_max, y_max
-             scores - [N] np.array of sorted scores (highest first)
-             classes - [N] np.array of string class names
-             input_metadata - a dictionary of additional input params. can be empty.
-    """
-    detections = request.pop('detections')
-    boxes, scores, classes = unpack_detections(detections)
-    input_metadata = request
-    return boxes, scores, classes, input_metadata
-
-
 def prepare_results(boxes, scores, classes):
     """
     prepare detection results. usually some sort of textual serialization.
@@ -121,9 +103,10 @@ def prepare_results(boxes, scores, classes):
     :param classes: [N] np.array of string class names
     :return: results - a json-like object (composed of dicts and lists) of detection results.
     """
-    result = {'detections': pack_detections(boxes, scores, classes),
-              'statusType': 'stripDetections'}
-    return result
+    return {
+        'detections': pack_detections(boxes, scores, classes),
+        'statusType': 'stripDetections'
+    }
 
 
 def check_correspondence(boxes, scores, classes):
