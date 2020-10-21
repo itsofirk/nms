@@ -95,6 +95,34 @@ REQUEST_EXAMPLE = {
                 ]
             },
             "classification": "class_name"
+        }, {
+            "grade": 0.9,
+            "pixelLocation": {
+                "type": "Polygon",
+                "coordinates": [
+                    [[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]
+                ]
+            },
+            "classification": "rectangle"
+        },
+        {
+            "grade": 0.7,
+            "pixelLocation": {
+                "type": "Polygon",
+                "coordinates": [
+                    [[1, 1], [0, 11], [11, 11], [11, 0], [1, 1]]
+                ]
+            },
+            "classification": "rectangle"
+        }, {
+            "grade": 0.5,
+            "pixelLocation": {
+                "type": "Polygon",
+                "coordinates": [
+                    [[1, 1], [0, 10], [11, 11], [10, 0], [1, 1]]
+                ]
+            },
+            "classification": "not_rectangle"
         }
     ],
     "num_positive_detections": {
@@ -105,10 +133,11 @@ REQUEST_EXAMPLE = {
 RESULT_EXAMPLE = {
     'detections': [
         {
-            'grade': 0.8105800151824951, 'pixelLocation':
-            {
-                'type': 'Polygon', 'coordinates':
-                [
+            'classification': 'class_name',
+            'grade': 0.8105800151824951,
+            'pixelLocation': {
+                'type': 'Polygon',
+                'coordinates': [
                     [
                         [4426.42724609375, 33574.12890625],
                         [4426.42724609375, 33651.75],
@@ -117,14 +146,13 @@ RESULT_EXAMPLE = {
                         [4426.42724609375, 33574.12890625]
                     ]
                 ]
-            },
-            'classification': 'class_name'
-        },
-        {
-            'grade': 0.5132514834403992, 'pixelLocation':
-            {
-                'type': 'Polygon', 'coordinates':
-                [
+            }
+        }, {
+            'classification': 'class_name',
+            'grade': 0.5132514834403992,
+            'pixelLocation': {
+                'type': 'Polygon',
+                'coordinates': [
                     [
                         [4176.28564453125, 39387.12890625],
                         [4176.28564453125, 39472.26953125],
@@ -133,8 +161,39 @@ RESULT_EXAMPLE = {
                         [4176.28564453125, 39387.12890625]
                     ]
                 ]
-            },
-            'classification': 'class_name'
+            }
+        },
+        {
+            'classification': 'not_rectangle',
+            'grade': 0.5,
+            'pixelLocation': {
+                'type': 'Polygon',
+                'coordinates': [
+                    [
+                        [0.0, 0.0],
+                        [0.0, 11.0],
+                        [11.0, 11.0],
+                        [11.0, 0.0],
+                        [0.0,
+                         0.0]]
+                ]
+            }
+        },
+        {
+            'classification': 'rectangle',
+            'grade': 0.699999988079071,
+            'pixelLocation': {
+                'type': 'Polygon',
+                'coordinates': [
+                    [
+                        [0.0, 0.0],
+                        [0.0, 10.0],
+                        [10.0, 10.0],
+                        [10.0, 0.0],
+                        [0.0, 0.0]
+                    ]
+                ]
+            }
         }
     ],
     'statusType': 'stripDetections'
